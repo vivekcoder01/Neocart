@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import "./Chat.css";
+
 import {
   collection,
   addDoc,
@@ -7,21 +9,26 @@ import {
   orderBy
 } from "firebase/firestore";
 
-import { db, auth } from "../firebase";
-import "./Chat.css";
+import { db, auth } from "./firebase";
+
+/*
+  AdminChat:
+  - Reads all messages in real time
+  - Only ADMIN can send replies
+*/
 
 function AdminChat() {
   const [messages, setMessages] = useState([]);
   const [reply, setReply] = useState("");
 
-  // 🔄 FETCH MESSAGES (REAL-TIME)
+  /* ===================== REAL-TIME FETCH ===================== */
   useEffect(() => {
     const q = query(
       collection(db, "messages"),
       orderBy("createdAt")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, snapshot => {
       const data = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -32,12 +39,14 @@ function AdminChat() {
     return () => unsubscribe();
   }, []);
 
-  // 📤 ADMIN REPLY (WITH AUTH CHECK)
+  /* ===================== ADMIN REPLY ===================== */
   const sendReply = async () => {
-    const user = auth.currentUser;
-
-    if (!user || user.email !== "admin@neocart.com") {
-      alert("Not authorized as admin");
+    
+    if (
+      !auth.currentUser ||
+      auth.currentUser.email !== "admin@neocart.com"
+    ) {
+      alert("Unauthorized");
       return;
     }
 
@@ -52,11 +61,14 @@ function AdminChat() {
     setReply("");
   };
 
+  /* ===================== UI ===================== */
   return (
-    <div className="chat-container" style={{ width: "100%" }}>
+    <div
+      className="chat-container"
+      style={{ position: "static", width: "100%" }}
+    >
       <div className="chat-header">🛠 Admin Chat Panel</div>
 
-      {/* ===== MESSAGES ===== */}
       <div className="chat-messages">
         {messages.map(msg => (
           <div
@@ -68,7 +80,6 @@ function AdminChat() {
         ))}
       </div>
 
-      {/* ===== INPUT ===== */}
       <div className="chat-input">
         <input
           type="text"

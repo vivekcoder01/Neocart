@@ -1,18 +1,24 @@
 import "./Dashboard.css";
 import AdminChat from "./AdminChat";
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
-function Dashboard({ products, cart }) {
-  // Calculate revenue
+function Dashboard({ products = [], cart = [], onLogout }) {
   const totalRevenue = cart.reduce((sum, item) => sum + item.price, 0);
-
-  // Unique categories
   const categories = [...new Set(products.map(p => p.category))];
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    onLogout(); // tell App.js to reset state
+  };
 
   return (
     <div className="dashboard">
-      <h2>📊 Admin Dashboard</h2>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2>📊 Admin Dashboard</h2>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
 
-      {/* ===== DASHBOARD STATS ===== */}
       <div className="dashboard-cards">
         <div className="dash-card">
           <h3>{products.length}</h3>
@@ -35,7 +41,6 @@ function Dashboard({ products, cart }) {
         </div>
       </div>
 
-      {/* ===== ADMIN CHAT SECTION ===== */}
       <hr style={{ margin: "30px 0" }} />
       <AdminChat />
     </div>

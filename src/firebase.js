@@ -1,17 +1,19 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
+console.log("🔥 Firebase config loaded");
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
+  apiKey: "PASTE_FROM_FIREBASE",
+  authDomain: "PASTE_FROM_FIREBASE",
+  projectId: "PASTE_FROM_FIREBASE",
+  storageBucket: "PASTE_FROM_FIREBASE",
+  messagingSenderId: "PASTE_FROM_FIREBASE",
+  appId: "PASTE_FROM_FIREBASE"
 };
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const db = getFirestore(app);

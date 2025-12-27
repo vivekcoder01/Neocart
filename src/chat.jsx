@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
-import { db } from "../firebase";
+
+
 
 
 // 🔥 Firebase imports

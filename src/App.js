@@ -1,62 +1,90 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+
 import Dashboard from "./Dashboard";
 import Chat from "./Chat";
 
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
 
 function App() {
-  // ================= STATES =================
+  /* ===================== STATE ===================== */
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
   const [panel, setPanel] = useState("user"); // user | admin
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ================= FETCH PRODUCTS =================
+  /* ===================== FETCH PRODUCTS ===================== */
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then(res => res.json())
-      .then(data => setProducts(data));
+      .then(data => setProducts(data))
+      .catch(err => console.error(err));
   }, []);
 
-  // ================= CART FUNCTIONS =================
+  /* ===================== CART FUNCTIONS ===================== */
   const addToCart = product => {
-    setCart([...cart, product]);
+    setCart(prev => [...prev, product]);
   };
 
   const removeFromCart = index => {
-    const updated = [...cart];
-    updated.splice(index, 1);
-    setCart(updated);
+    setCart(prev => prev.filter((_, i) => i !== index));
   };
 
-  // ================= ADMIN LOGIN =================
-  const openAdminPanel = () => {
-    const password = prompt("Enter Admin Password");
+  /* ===================== ADMIN LOGIN ===================== */
+  const openAdminPanel = async () => {
+    const email = prompt("Admin Email");
+    const password = prompt("Admin Password");
 
-    if (password === "admin123") {
-      setIsAdmin(true);
-      setPanel("admin");
-    } else {
-      alert("❌ Wrong password. Access denied.");
+    if (!email || !password) return;
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      if (userCredential.user.email === "admin@neocart.com") {
+        setIsAdmin(true);
+        setPanel("admin");
+      } else {
+        alert("❌ You are not an admin");
+      }
+    } catch (error) {
+      alert("❌ Login failed: " + error.message);
     }
   };
 
-  // ================= FILTER PRODUCTS =================
-  const filteredProducts = products.filter(p => {
-    const matchSearch = p.title.toLowerCase().includes(search.toLowerCase());
+  /* ===================== ADMIN LOGOUT ===================== */
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    setPanel("user");
+  };
+
+  /* ===================== FILTER PRODUCTS ===================== */
+  const filteredProducts = products.filter(product => {
+    const matchSearch = product.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
     const matchCategory =
-      category === "all" || p.category === category;
+      category === "all" || product.category === category;
+
     return matchSearch && matchCategory;
   });
 
+  /* ===================== TOTAL ===================== */
   const total = cart.reduce((sum, item) => sum + item.price, 0);
 
+  /* ===================== UI ===================== */
   return (
     <div className="container">
-      {/* ================= HEADER ================= */}
+      {/* ---------- HEADER ---------- */}
       <header className="header">
         <h1>🛒 Neocart</h1>
         <p>Cart: {cart.length}</p>
@@ -67,12 +95,16 @@ function App() {
         </div>
       </header>
 
-      {/* ================= ADMIN PANEL ================= */}
+      {/* ---------- ADMIN PANEL ---------- */}
       {panel === "admin" && isAdmin && (
-        <Dashboard products={products} cart={cart} />
+        <Dashboard
+          products={products}
+          cart={cart}
+          onLogout={handleAdminLogout}
+        />
       )}
 
-      {/* ================= USER PANEL ================= */}
+      {/* ---------- USER PANEL ---------- */}
       {panel === "user" && (
         <>
           {/* SEARCH & FILTER */}
@@ -113,19 +145,20 @@ function App() {
           {/* CART */}
           <div className="cart">
             <h2>🛍 Cart</h2>
+
             {cart.length === 0 && <p>No items</p>}
 
-            {cart.map((item, i) => (
-              <div className="cart-item" key={i}>
+            {cart.map((item, index) => (
+              <div className="cart-item" key={index}>
                 <span>{item.title}</span>
-                <button onClick={() => removeFromCart(i)}>❌</button>
+                <button onClick={() => removeFromCart(index)}>❌</button>
               </div>
             ))}
 
             <h3>Total: ₹{Math.round(total * 80)}</h3>
           </div>
 
-          {/* ================= CHAT UI ================= */}
+          {/* CHAT */}
           <Chat />
         </>
       )}
