@@ -1,4 +1,5 @@
 import "./Dashboard.css";
+import AdminChat from "./AdminChat";
 
 function Dashboard({ products, cart }) {
   // Calculate revenue
@@ -11,6 +12,7 @@ function Dashboard({ products, cart }) {
     <div className="dashboard">
       <h2>📊 Admin Dashboard</h2>
 
+      {/* ===== DASHBOARD STATS ===== */}
       <div className="dashboard-cards">
         <div className="dash-card">
           <h3>{products.length}</h3>
@@ -32,6 +34,10 @@ function Dashboard({ products, cart }) {
           <p>Categories</p>
         </div>
       </div>
+
+      {/* ===== ADMIN CHAT SECTION ===== */}
+      <hr style={{ margin: "30px 0" }} />
+      <AdminChat />
     </div>
   );
 }

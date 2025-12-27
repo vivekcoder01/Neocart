@@ -1,37 +1,38 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import Dashboard from "./Dashboard";
+import Chat from "./Chat";
+
 
 function App() {
-  // STATES
+  // ================= STATES =================
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
   const [panel, setPanel] = useState("user"); // user | admin
-  const [isAdmin, setIsAdmin] = useState(false); // security flag
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // FETCH PRODUCTS
+  // ================= FETCH PRODUCTS =================
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then(res => res.json())
       .then(data => setProducts(data));
   }, []);
 
-  // ADD TO CART
+  // ================= CART FUNCTIONS =================
   const addToCart = product => {
     setCart([...cart, product]);
   };
 
-  // REMOVE FROM CART
   const removeFromCart = index => {
     const updated = [...cart];
     updated.splice(index, 1);
     setCart(updated);
   };
 
-  // ADMIN LOGIN HANDLER
+  // ================= ADMIN LOGIN =================
   const openAdminPanel = () => {
     const password = prompt("Enter Admin Password");
 
@@ -43,7 +44,7 @@ function App() {
     }
   };
 
-  // FILTER PRODUCTS
+  // ================= FILTER PRODUCTS =================
   const filteredProducts = products.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase());
     const matchCategory =
@@ -55,12 +56,11 @@ function App() {
 
   return (
     <div className="container">
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <header className="header">
         <h1>🛒 Neocart</h1>
         <p>Cart: {cart.length}</p>
 
-        {/* PANEL BUTTONS */}
         <div>
           <button onClick={() => setPanel("user")}>User Panel</button>
           <button onClick={openAdminPanel}>Admin Panel</button>
@@ -124,6 +124,9 @@ function App() {
 
             <h3>Total: ₹{Math.round(total * 80)}</h3>
           </div>
+
+          {/* ================= CHAT UI ================= */}
+          <Chat />
         </>
       )}
     </div>
